@@ -25,18 +25,19 @@ model Author {
 model Book {
   id          String     @id @default(uuid())
   title       String
-  authorId    String
-  author      Author     @relation(fields: [authorId], references: [id])
+  authorId    String?
+  author      Author?    @relation(fields: [authorId], references: [id], onDelete: SetNull)
   publisherId String?
-  publisher   Publisher? @relation(fields: [publisherId], references: [id])
+  publisher   Publisher? @relation(fields: [publisherId], references: [id], onDelete: SetNull)
   genres      Genre[]
+  reviews     Review[]
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
 }
 
 model Publisher {
   id        String   @id @default(uuid())
-  name      String
+  name      String   @unique
   books     Book[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -44,8 +45,39 @@ model Publisher {
 
 model Genre {
   id        String   @id @default(uuid())
-  name      String
+  name      String   @unique
   books     Book[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String
+  reviews   Review[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Review {
+  id        String   @id @default(uuid())
+  comment   String
+  bookId    String
+  book      Book     @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  ratingId  String
+  rating    Rating   @relation(fields: [ratingId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Rating {
+  id        String   @id @default(uuid())
+  value     Int      @unique
+  label     String   @unique
+  reviews   Review[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
